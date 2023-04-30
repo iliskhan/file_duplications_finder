@@ -1,0 +1,6 @@
+{
+    "search_path": "C:/Users/User/Documents",
+    "exclude_extensions": [".exe", ".dll"],
+    "minimum_size": 1024,
+    "hash_algorithm": "sha256"
+}
