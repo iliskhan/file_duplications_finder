@@ -21,8 +21,8 @@ class FileStorage:
     def get_duplicate_files(self):
         unique_files = {}
         for file in self.files:
-            if file.get_hash() in unique_files:
-                unique_files[file.get_hash()].append(file)
+            if file.hash in unique_files:
+                unique_files[file.hash].append(file)
             else:
-                unique_files[file.get_hash()] = [file]
+                unique_files[file.hash] = [file]
         return {k:v for k,v in unique_files.items() if len(v)>1}
