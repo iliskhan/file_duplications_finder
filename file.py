@@ -33,12 +33,12 @@ class File:
             logger.exception(e)
             raise
 
-    # @perf_timer
+    @perf_timer
     def get_hash(self):
         hash_md5 = hashlib.md5()
         try:
             with open(self.path, "rb") as f:
-                for chunk in iter(lambda: f.read(4096), b""):
+                for chunk in iter(lambda: f.read(64*1024), b""):
                     hash_md5.update(chunk)
         except OSError as e:
             logger.exception(e)
