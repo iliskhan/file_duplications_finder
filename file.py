@@ -1,22 +1,78 @@
 import os
 import hashlib
+import logging
+from datetime import datetime
+
+from utils import convert_unit, perf_timer
+
+
+logger = logging.getLogger(__name__)
 
 class File:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, full_path, relative_path):
+        self.path = full_path
+        self.relative_path = relative_path
+        self.size = self.get_size()
+        self.human_readable_size = convert_unit(self.size)
+        self.creation_date = self.get_creation_date()
+        self.hash = self.get_hash()
 
+    # @perf_timer
     def get_size(self):
-        return os.path.getsize(self.path)
-    
+        try:
+            return os.path.getsize(self.path)
+        except OSError as e:
+            logger.exception(e)
+            raise
+
+    # @perf_timer
     def get_creation_date(self):
-        return os.path.getctime(self.path)
-    
+        try:
+            return datetime.fromtimestamp(os.path.getctime(self.path)).replace(microsecond=0)
+        except OSError as e:
+            logger.exception(e)
+            raise
+
+    # @perf_timer
     def get_hash(self):
         hash_md5 = hashlib.md5()
-        with open(self.path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
+        try:
+            with open(self.path, "rb") as f:
+                for chunk in iter(lambda: f.read(4096), b""):
+                    hash_md5.update(chunk)
+        except OSError as e:
+            logger.exception(e)
+            raise
         return hash_md5.hexdigest()
         
+    def delete(self):
+        try:
+            os.remove(self.path)
+        except OSError as e:
+            logger.exception(e)
+            raise
+
     def __eq__(self, other):
-        return self.get_hash() == other.get_hash()
+        return self.hash == other.hash
+
+    def __repr__(self):
+        return f"File({self.path!r})"
+
+    def __str__(self):
+        return f"File({self.path!r})"
+
+    def __hash__(self):
+        return hash(self.path)
+
+    def __lt__(self, other):
+        return self.path < other.path
+
+    def __gt__(self, other):
+        return self.path > other.path
+
+    def __le__(self, other):
+        return self.path <= other.path
+
+    def __ge__(self, other):
+        return self.path >= other.path
+
