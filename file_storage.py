@@ -2,6 +2,7 @@ import os
 from file import File
 from utils import perf_timer
 from multiprocessing.dummy import Pool
+from multiprocessing.pool import ThreadPool
 
 class FileStorage:
     def __init__(self, path):
@@ -17,10 +18,12 @@ class FileStorage:
             relative_path = os.path.relpath(full_path, self.path)
             return File(full_path=full_path, relative_path=relative_path)
 
-        with Pool() as pool:
-            for root, _, files in os.walk(self.path):
-                for file in pool.imap(get_file, [(root, filename) for filename in files]):
-                    self.files.append(file)
+        pool: ThreadPool
+        with Pool() as pool: 
+            self.files.clear()
+            for root, _, filenames in os.walk(self.path):
+                files = pool.map(get_file, ((root, filename) for filename in filenames))
+                self.files.extend(files)
 
     @perf_timer
     def get_duplicate_files(self):

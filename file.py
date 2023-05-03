@@ -3,7 +3,7 @@ import hashlib
 import logging
 from datetime import datetime
 
-from utils import convert_unit, perf_timer
+from utils import convert_unit
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,6 @@ class File:
         self.creation_date = self.get_creation_date()
         self.hash = self.get_hash()
 
-    # @perf_timer
     def get_size(self):
         try:
             return os.path.getsize(self.path)
@@ -25,7 +24,6 @@ class File:
             logger.exception(e)
             raise
 
-    # @perf_timer
     def get_creation_date(self):
         try:
             return datetime.fromtimestamp(os.path.getctime(self.path)).replace(microsecond=0)
@@ -33,7 +31,6 @@ class File:
             logger.exception(e)
             raise
 
-    @perf_timer
     def get_hash(self):
         hash_md5 = hashlib.md5()
         try:

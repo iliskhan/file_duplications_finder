@@ -2,8 +2,6 @@ import os
 import platform
 import subprocess
 
-from pprint import pprint
-
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from file_storage import FileStorage
@@ -114,6 +112,7 @@ class UI:
             l = [(int(self.duplicate_files_table.set(k, column)), k) for k in self.duplicate_files_table.get_children('')]
         else:
             l = [(self.duplicate_files_table.set(k, column), k) for k in self.duplicate_files_table.get_children('')]
+        
         l.sort(reverse=reverse)
 
         # rearrange items in sorted positions
@@ -134,13 +133,20 @@ class UI:
         self.file_storage.scan_files()
         duplicates = self.file_storage.get_duplicate_files()
         if duplicates:
-            ui_id = 1
+            for item in self.duplicate_files_table.get_children():
+                self.duplicate_files_table.delete(item)
+
+            id_to_show = 1
             for hashsum, files in duplicates.items():
+                default_selection = []
                 for file in files:
-                    values = (ui_id, hashsum, file.relative_path, file.creation_date, file.human_readable_size)
+                    values = (id_to_show, hashsum, file.relative_path, file.creation_date, file.human_readable_size)
                     id = self.duplicate_files_table.insert("", tk.END, values=values)
                     self.files_ids[id] = file
-                    ui_id += 1  
+                    default_selection.append(id)
+                    id_to_show += 1  
+                
+                self.duplicate_files_table.selection_add(default_selection[:-1])
             self.scan_files_button.config(state=tk.DISABLED)
             self.delete_button.config(state=tk.NORMAL)
         else:
