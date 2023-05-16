@@ -26,18 +26,22 @@ class UI:
         self.folder_to_scan_label = ttk.Label(self.content_frame, text=FOLDER_LABEL_TEXT)
         self.folder_to_scan_label.pack(pady=10, anchor=tk.NW)
 
-        self.select_folder_button = ttk.Button(self.content_frame, text="Select Folder", command=self.select_folder)
-        self.select_folder_button.pack(side=tk.RIGHT)
+        self.buttons_frame = ttk.Frame(self.content_frame)
+        self.buttons_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.scan_files_button = ttk.Button(self.content_frame, text="Scan Files", command=self.scan_files, state=tk.DISABLED)
-        self.scan_files_button.pack(pady=10, side=tk.RIGHT)
+        self.select_folder_button = ttk.Button(self.buttons_frame, text="Select Folder", command=self.select_folder)
+        self.select_folder_button.grid(row=0, column=0, pady=10, sticky='nsew')
 
-        self.delete_button = ttk.Button(self.content_frame, text="Delete Selected File", command=self.delete_file, state=tk.DISABLED)
-        self.delete_button.pack(side=tk.RIGHT)
+        self.scan_files_button = ttk.Button(self.buttons_frame, text="Scan Files", command=self.scan_files, state=tk.DISABLED)
+        self.scan_files_button.grid(row=1, column=0, pady=10, sticky='nsew')
+
+        self.delete_button = ttk.Button(self.buttons_frame, text="Delete Selected File", command=self.delete_file, state=tk.DISABLED)
+        self.delete_button.grid(row=2, column=0, pady=10, sticky='nsew')
 
         self.create_duplicate_files_table()
 
         self.root.mainloop()
+
 
     def create_duplicate_files_table(self):
         columns = ("id", "hashsum", "name", "creation date", "size")
@@ -46,10 +50,7 @@ class UI:
         self.duplicate_files_table_scrollbar_y = ttk.Scrollbar(self.content_frame, orient="vertical", command=self.duplicate_files_table.yview)
         self.duplicate_files_table_scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.duplicate_files_table_scrollbar_x = ttk.Scrollbar(self.content_frame, orient="horizontal", command=self.duplicate_files_table.xview)
-        self.duplicate_files_table_scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self.duplicate_files_table.configure(yscrollcommand=self.duplicate_files_table_scrollbar_y.set, xscrollcommand=self.duplicate_files_table_scrollbar_x.set)
+        self.duplicate_files_table.configure(yscrollcommand=self.duplicate_files_table_scrollbar_y.set)
 
         self.duplicate_files_table.heading("id", text="Id", command=lambda: self.sort_column("id"))
         self.duplicate_files_table.heading("hashsum", text="Hashsum", command=lambda: self.sort_column("hashsum"))
@@ -70,11 +71,11 @@ class UI:
 
         self.duplicate_files_table.pack(pady=10, expand=True, fill=tk.BOTH)
 
+
     def shift_key_press(self, event):
         tree = event.widget
         cur_item = tree.focus()
 
-        # You need the next item, because you `"break"` standard behavior
         match event.keysym:
             case 'Up':
                 next_item = tree.prev(cur_item)
